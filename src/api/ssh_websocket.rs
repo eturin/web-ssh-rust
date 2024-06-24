@@ -54,7 +54,7 @@ async fn ws_start(ws: WebSocket) {
 
     if let Err(e) = ssh.run(ws_rx, &tx).await {
         error!("{e}");
-        let msg = get_ws_stdout(e.to_string());
+        let msg = get_ws_stderr(e.to_string());
         send_ws_msg(&tx, msg);
     };
 
@@ -64,6 +64,13 @@ async fn ws_start(ws: WebSocket) {
 fn get_ws_stdout(s: String) ->Message {
     let s = BASE64_STANDARD.encode(s);
     let json = json!({"type": "stdout", "data": s});
+    let text = json.to_string();
+    Message::text(text)
+}
+
+fn get_ws_stderr(s: String) ->Message {
+    let s = BASE64_STANDARD.encode(s);
+    let json = json!({"type": "stderr", "data": s});
     let text = json.to_string();
     Message::text(text)
 }

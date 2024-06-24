@@ -31,6 +31,7 @@ use {
     self::super::auth_type::AuthType,
     self::super::{get_ws_stdout, send_ws_msg},
 };
+use crate::api::ssh_websocket::get_ws_stderr;
 
 pub struct Session {
     addr:      String,
@@ -38,6 +39,7 @@ pub struct Session {
     user:      String,
     key_name:  String,
     key_path:  String,
+    key:       String,
     pwd:       String,
     container: String,
     command:   String,
@@ -69,6 +71,7 @@ impl Session {
             user:      String::new(),
             key_name:  String::new(),
             key_path:  String::new(),
+            key:       String::new(),
             pwd:       String::new(),
             container: String::new(),
             command:   "bash || sh".to_string(),
@@ -89,11 +92,15 @@ impl Session {
         // установка соединения
         let mut cli = client::connect(config, &self.addr, cli_hndl).await?;
         let auth_res = match self.auth_type {
-            AuthType::KEY => {
+            AuthType::KEY_NAME => {
                 let key_pair = russh_keys::load_secret_key(&self.key_path, if self.pwd.is_empty() {None} else {Some(&self.pwd)})?;
                 cli.authenticate_publickey(&self.user, Arc::new(key_pair)).await?
             },
             AuthType::PASS => cli.authenticate_password(&self.user, &self.pwd).await?,
+            AuthType::KEY => {
+                let key_pair = russh_keys::decode_secret_key(&self.key, if self.pwd.is_empty() {None} else {Some(&self.pwd)})?;
+                cli.authenticate_publickey(&self.user, Arc::new(key_pair)).await?
+            },
         };
 
         if !auth_res {
@@ -175,7 +182,7 @@ impl Session {
                         break;
                     }
                     let json = r_str.unwrap();
-                    let mut r_val = serde_json::from_str::<SSHData>(json);
+                    let r_val = serde_json::from_str::<SSHData>(json);
                     if r_val.is_err() {
                         let r_val2 = serde_json::from_str::<Size>(json);
                         if r_val2.is_err() {
@@ -202,6 +209,7 @@ impl Session {
                     } else if obj.Type == "password" {
                         if let Ok(b) = BASE64_STANDARD.decode(obj.data.to_string()) {
                             self.pwd = std::str::from_utf8(b.as_slice()).unwrap().to_string();
+                            self.auth_type = AuthType::PASS;
                         }
                     } else if obj.Type == "container"  {
                         if let Ok(b) = BASE64_STANDARD.decode(obj.data.to_string()) {
@@ -210,6 +218,12 @@ impl Session {
                     } else if obj.Type == "keysname" {
                         if let Ok(b) = BASE64_STANDARD.decode(obj.data.to_string()) {
                            self.key_name = std::str::from_utf8(b.as_slice()).unwrap().to_string();
+                           self.auth_type = AuthType::KEY_NAME;
+                        }
+                    } else if obj.Type == "key" {
+                        if let Ok(b) = BASE64_STANDARD.decode(obj.data.to_string()) {
+                           self.key = std::str::from_utf8(b.as_slice()).unwrap().to_string();
+                           self.auth_type = AuthType::KEY;
                         }
                     }
                 },
@@ -224,7 +238,7 @@ impl Session {
             Err(e) => {
                 let err = format!("Ошибка создания ssh-клиент: {e}");
                 error!("{err}");
-                let msg = get_ws_stdout(err);
+                let msg = get_ws_stderr(err+"\r\n");
                 send_ws_msg(&tx, msg);
                 return Ok(300);
             },
@@ -261,7 +275,7 @@ impl Session {
                         break;
                     }
                     let json = r_str.unwrap();
-                    let mut r_val = serde_json::from_str::<SSHData>(json);
+                    let r_val = serde_json::from_str::<SSHData>(json);
                     if r_val.is_ok() {
                         let obj = r_val.unwrap();
                         if obj.Type == "stdin"  {
@@ -269,7 +283,6 @@ impl Session {
                             if let Ok(b) = res {
                                 let buf: Vec<u8> = b.to_vec();
                                 let n = buf.len();
-                                println!("{:?}", &buf[..n]);
                                 if let Err(e) = channel.data(&buf[..n]).await {
                                     error!("Ошибка записи сообщения в канал ssh-клиента: {e:?}");
                                     break;
@@ -282,7 +295,7 @@ impl Session {
                             error!("Неисзвестный тип сообщения от web-сокет: {:?}", obj);
                         }
                     } else {
-                        let mut r_val = serde_json::from_str::<Size>(json);
+                        let r_val = serde_json::from_str::<Size>(json);
                         if r_val.is_ok() {
                             let obj = r_val.unwrap();
                             let _ = self.windowChange(&channel, obj.cols, obj.rows-1).await;

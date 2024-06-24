@@ -12,13 +12,16 @@ tokio-stream = "0.1.15"
 futures = "0.3.30"
 log = "0.4.21"
 env_logger = "0.11.3"
-russh = "0.43.0"
+russh = { version = "0.43.0",  features = ["openssl"] }
+#russh = "0.44.0-beta.2"
+#russh-keys = { version = "0.43.0",  features = ["openssl"] }
+russh-keys = { version = "0.43.0", features = ["vendored-openssl"] }
+#russh-keys = { version = "0.44.0-beta.2", features = ["vendored-openssl"] }
 shell-escape = "0.1.5"
 termion = "4.0.0"
 tokio-fd = "0.3.0"
 async-trait = "0.1.80"
 anyhow = "1.0.86"
-russh-keys = "0.43.0"
 serde_json = "1.0.117"
 itertools = "0.13.0"
 base64 = "0.22.1"

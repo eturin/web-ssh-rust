@@ -6,12 +6,10 @@ import {Terminal} from "xterm";
 import Zmodem from 'zmodem.js'
 const utf8_to_b64 = (rawString) => {
     return btoa(unescape(encodeURIComponent(rawString)))
-    //return btoa(rawString)
 }
 
 const b64_to_utf8 = (encodeString) => {
     return decodeURIComponent(escape(atob(encodeString)))
-    //return atob(encodeString)
 }
 
 const bytesHuman = (bytes, precision) => {
@@ -340,9 +338,11 @@ export const ws_connect = (conf, setConf) => {
         if (connect_info.auth === 'pwd') {
             socket.send(JSON.stringify({ type: "password", data: utf8_to_b64(connect_info.passwd) }))
         } else if (connect_info.auth === 'key') {
-            socket.send(JSON.stringify({ type: "publickey", data: utf8_to_b64(connect_info.ssh_key), passphrase: utf8_to_b64(connect_info.passwd) }))
+            if (!connect_info.passwd.isEmpty) { socket.send(JSON.stringify({ type: "password", data: utf8_to_b64(connect_info.passwd) })) }
+            socket.send(JSON.stringify({ type: "key", data: utf8_to_b64(connect_info.ssh_key) }))
         } else if (connect_info.auth === 'keysname') {
-            socket.send(JSON.stringify({ type: "keysname", data: utf8_to_b64(connect_info.keysname), passphrase: utf8_to_b64(connect_info.passwd) }))
+            if (!connect_info.passwd.isEmpty()) { socket.send(JSON.stringify({ type: "password", data: utf8_to_b64(connect_info.passwd) })) }
+            socket.send(JSON.stringify({ type: "keysname", data: utf8_to_b64(connect_info.keysname) }))
         }
         let cols_rows = calc_term_size()
         term.resize(cols_rows.cols, cols_rows.rows)

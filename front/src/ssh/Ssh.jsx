@@ -1,19 +1,27 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {ws_connect, readFile} from "./help";
 import styles from './ssh.module.css'
 import 'xterm/css/xterm.css';
 
 
 function Ssh() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const hostname = searchParams.get("host")
+    const port = searchParams.get("port")
+    const user = searchParams.get("user")
+    const key = searchParams.get("key")
+    const connect = searchParams.get("connect") === 'true'
+
     const [conf, setConf]   = useState(
         {
             isShowConnect: true,
-            hostname: "localhost",
-            port: 22,
-            login: "ture",
+            hostname: hostname ? hostname : "127.0.0.1",
+            port: port ? port : 22,
+            login: user ? user : "ture",
             type: "pwd",
-            key: "eturin",
+            key: key ? key : "eturin",
             keyText: "",
             pwd: "",
             isShowUtils: false,
@@ -21,6 +29,12 @@ function Ssh() {
             container: "",
             cnt: 250
         });
+
+    useEffect(() => {
+        if (connect === true) {
+            ws_connect(conf, setConf)
+        }
+    }, [conf,connect]);
 
 
     // типы аутентификации
