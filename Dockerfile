@@ -18,7 +18,7 @@ RUN npm i && npm run build
 
 
 
-FROM debian:12 
+FROM debian:12-slim 
 
 COPY --from=back    /build/target/release/warp-websockets-example /opt/webssh
 COPY --from=front   /build/build                                  /opt/static
