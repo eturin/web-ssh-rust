@@ -1,9 +1,78 @@
-.console {
-    margin: 0px;
-    padding: 0px;
-    height: 100%;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container {
+    height: 100vh;
     width: 100%;
     ::-webkit-scrollbar {
         width: 0;
     }
+    background-image: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url("/public/img/sea.jpg");
+    background-position: center;
+    background-size: cover;
+}
+.connect {
+    width: 400px;
+    height: 500px;
+    background: black;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 10px;
+    padding: 40px 25px;
+}
+.user {
+    width: 100px;
+    height: 100px;
+
+    border-radius: 50%;
+    position: absolute;
+    top: -80px;
+    left: 160px;
+    background-image: url("/public/img/user.png");
+    background-position: center;
+    background-size: cover;
+
+}
+.hconnect{
+    text-align: center;
+    padding: 0 0 20px;
+    font-size: 30px;
+}
+.lhost {
+    width: 100%;
+    font-weight: bold;
+    float: left;
+    margin-right: 10px;
+}
+.lport {
+    font-weight: bold;
+    float: none;
+}
+.ltype {
+    margin-top: 100px;
+    font-weight: bold;
+    text-align: center;
+
+}
+.auth_item {
+    margin: 5px 5px 5px;
+}
+.luser {
+    font-weight: bold;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+.fhost {
+    width: 86%;
+}
+.fport {
+    width: 12%;
+}
+.fuser {
+    width: 100%;
 }

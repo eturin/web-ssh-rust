@@ -225,6 +225,14 @@ impl Session {
                            self.key = std::str::from_utf8(b.as_slice()).unwrap().to_string();
                            self.auth_type = AuthType::KEY;
                         }
+                    } else if obj.Type == "stats" {
+                        self.command = format!("docker stats");
+                    } else if obj.Type == "logsize" {
+                        if let Ok(b) = BASE64_STANDARD.decode(obj.data.to_string()) {
+                           if let Ok(cnt) = std::str::from_utf8(b.as_slice()).unwrap().to_string().parse::<u16>() {
+                                self.command = format!("docker logs --tail {cnt} {} -f", self.container);
+                           }
+                        }
                     }
                 },
             }
