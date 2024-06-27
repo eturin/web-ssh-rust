@@ -7,8 +7,8 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/ssh" element={<Ssh />} />
-                <Route path="/deploy" element={<Deploy />} />
+                <Route path="/" element={<Ssh />} />
+                {/*<Route path="/deploy" element={<Deploy />} />*/}
             </Routes>
         </BrowserRouter>
     )
