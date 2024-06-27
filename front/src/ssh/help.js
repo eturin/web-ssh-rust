@@ -74,17 +74,18 @@ const get_connect_info = (conf)  => {
     let protocol = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
     let ws_port = (window.location.port) ? (':' + window.location.port) : '';
 
-    let host = conf.hostname;
-    let port = conf.port;
-    let user = conf.login;
-    let auth = conf.type;
-    let keysname       = conf.keysname;
-    let container      = conf.container;
-    let logsize        = conf.cnt;
-    let passwd         = conf.pwd;
-    let logs   = conf.utilsType === "logs";
-    let stats  = conf.utilsType === "stats";
-    let ssh_key        = conf.keyText;
+    let host = conf.hostname
+    let port = conf.port
+    let user = conf.login
+    let auth = conf.type
+    let isUtils        = conf.isShowUtils
+    let keysname       = conf.keysname
+    let container      = conf.container
+    let logsize        = conf.cnt
+    let passwd         = conf.pwd
+    let logs   = conf.utilsType === "logs"
+    let stats  = conf.utilsType === "stats"
+    let ssh_key        = conf.keyText
 
     return {
         hostname: hostname,
@@ -97,6 +98,7 @@ const get_connect_info = (conf)  => {
         passwd: passwd,
         keysname: keysname,
         ssh_key: ssh_key,
+        isUtils: isUtils,
         container: container,
         logsize: logsize,
         logs: logs,
@@ -328,11 +330,12 @@ export const ws_connect = (conf, setConf) => {
         socket.send(JSON.stringify({ type: "addr", data: utf8_to_b64(connect_info.host + ":" + connect_info.port) }))
         //socket.send(JSON.stringify({ type: "term", data: utf8_to_b64("linux") }))
         socket.send(JSON.stringify({ type: "login", data: utf8_to_b64(connect_info.user) }))
-        socket.send(JSON.stringify({ type: "container", data: utf8_to_b64(connect_info.container) }))
-        if (connect_info.logs) {
+
+        if (connect_info.isUtils && connect_info.logs) {
+            socket.send(JSON.stringify({ type: "container", data: utf8_to_b64(connect_info.container) }))
             socket.send(JSON.stringify({ type: "logs", data: utf8_to_b64(connect_info.logs) }))
             socket.send(JSON.stringify({ type: "logsize", data: utf8_to_b64(connect_info.logsize) }))
-        } else if (connect_info.stats) {
+        } else if (connect_info.isUtils && connect_info.stats) {
             socket.send(JSON.stringify({type: "stats", data: utf8_to_b64(connect_info.stats)}))
         }
         if (connect_info.auth === 'pwd') {

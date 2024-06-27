@@ -62,7 +62,7 @@ function Ssh() {
                      hidden={!conf.isShowConnect}
                      className={styles.connect}>
                     <div className={styles.user}/>
-                    <form >
+                    <form>
                         <h1 className={styles.hconnect}>СОЕДИНЕНИЕ</h1>
                         <div>
                             <span key="host">
@@ -99,43 +99,50 @@ function Ssh() {
                                    className={styles.fuser}/>
                         </div>
 
-                        <div key="auth">
+                        <div key="auth"
+                             className={styles.auth} >
                             <label htmlFor="auth"
                                    className={styles.ltype}>Тип аутентификации</label>
-                            <div key="auth">
+                            <div key="auth"
+                                 className={styles.gauth}>
                                 { authJSX }
                             </div>
 
                             <div hidden={conf.type !== "keysname"}>
-                                <label htmlFor="keyname">Имя ключа</label>
+                                <label htmlFor="keyname"
+                                       className={styles.lkeyname}>Имя ключа</label>
                                 <input id="keyname"
                                        placeholder="Имя ключа"
                                        value={conf.key}
-                                       onChange={(e) => setConf({...conf, key: e.currentTarget.value})}/>
+                                       onChange={(e) => setConf({...conf, key: e.currentTarget.value})}
+                                       className={styles.fkeyname}/>
                             </div>
 
                             <div hidden={conf.type !== "key"}>
-                                <label htmlFor="pkey">Ключ</label>
+                                <div><label htmlFor="pkey"
+                                       className={styles.pkey}>Ключ</label></div>
                                 <input type="file"
                                        id="pkey"
                                        onChange={() => readFile('pkey', conf, setConf)}/>
                             </div>
 
                             <div>
-                                <label htmlFor="password">Пароль</label>
+                                <label htmlFor="password"
+                                       className={styles.lpwd}>{conf.type === "pwd" ? "Пароль" : "Ключевая фраза" }</label>
                                 <input type="password"
                                        id="password"
                                        placeholder="password"
                                        value={conf.pwd}
                                        autoComplete="off"
                                        onChange={(e) => setConf({...conf,
-                                                                                                         pwd: e.currentTarget.value})}/>
+                                                                                                         pwd: e.currentTarget.value})}
+                                       className={styles.fpwd}/>
                             </div>
 
-                            <p key="helpBlock"><i>Если типом аутентификации является аутентификация по ключу, поле ввода
-                                    пароля представляет собой секретную ключевую фразу.</i></p>
 
-                            <div key="utils">
+
+                            <div key="utils"
+                                 className={styles.gutils}>
                                 <input type="checkbox"
                                        id="utils"
                                        checked={conf.isShowUtils}
@@ -171,19 +178,23 @@ function Ssh() {
                                         <label htmlFor="stats">Отобразить статистику</label>
                                     </div>
                                     <div key="cnt" hidden={conf.utilsType !== "logs"}>
-                                        <label htmlFor="logsize">Количество последних строк лога контейнера</label>
                                         <input type="number"
                                                id="logsize"
                                                value={conf.cnt}
                                                onChange={(e) => setConf({...conf,
-                                                                                                                  cnt: parseInt(e.currentTarget.value) ? e.currentTarget.value : conf.cnt})}/>
+                                                                                                                  cnt: parseInt(e.currentTarget.value) ? e.currentTarget.value : conf.cnt})}
+                                               className={styles.fcnt}/>
+                                        <label htmlFor="logsize"
+                                               className={styles.lcnt}>кол-во последних строк лога</label>
                                     </div>
                                 </div>
                             </div>
 
 
                         </div>
-                        <button type="button" onClick={() => ws_connect(conf, setConf)}>Установить соединение</button>
+                        <button type="button"
+                                onClick={() => ws_connect(conf, setConf)}
+                                className={styles.cbutton} >Установить соединение</button>
                     </form>
                 </div>
 
