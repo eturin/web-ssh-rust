@@ -2,7 +2,7 @@ import React from 'react';
 import $ from 'jquery';
 import toastr from 'toastr';
 import bootbox from 'bootbox';
-import {Terminal} from "xterm";
+import {Terminal} from "@xterm/xterm";
 import Zmodem from 'zmodem.js'
 const utf8_to_b64 = (rawString) => {
     return btoa(unescape(encodeURIComponent(rawString)))
@@ -304,7 +304,7 @@ export const ws_connect = (conf, setConf) => {
 
 
 
-    $("body").attr("onbeforeunload", 'checkwindow()') //Добавить свойство запроса на закрытие обновления
+    //$("body").attr("onbeforeunload", 'checkwindow()') //Добавить свойство запроса на закрытие обновления
 
     let zsentry = new Zmodem.Sentry( {
         to_terminal: function(octets) {},  //i.e. send to the terminal

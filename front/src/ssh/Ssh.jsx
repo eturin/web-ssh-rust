@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {ws_connect, readFile} from "./help";
 import styles from './ssh.module.css'
-import 'xterm/css/xterm.css';
-
+import '@xterm/xterm/css/xterm.css'
 
 function Ssh() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -38,7 +37,7 @@ function Ssh() {
 
 
     // типы аутентификации
-    const authTypes = [{key: "keysname", descr: "Имя ssh-ключа"},{key: "key", descr: "Файл ssh-ключа"},{key: "pwd", descr: "Пароль"}]
+    const authTypes = [/*{key: "keysname", descr: "Имя ssh-ключа"},*/{key: "key", descr: "Файл ssh-ключа"},{key: "pwd", descr: "Пароль"}]
     const authJSX = authTypes.map((x,i) => (
         <span key={i}
               className={styles.auth_item}>

@@ -20,7 +20,10 @@ cargo run
 ![alt text](https://github.com/eturin/web-ssh-rust/blob/main/screenshots/5.%20Work%20F3%20and%20etc.png)
 ![alt text](https://github.com/eturin/web-ssh-rust/blob/main/screenshots/6.%20Mouse%20click.png)
 
-
+```
+docker run --network=host -d turenet/rust-web-ssh:1.0.1
+```
+http://127.0.0.1:8080
 
 Спасибо:
 

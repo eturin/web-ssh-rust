@@ -262,7 +262,7 @@ impl Session {
         let mut code= 0;
         // признак разрыва соединения
         let mut stdin_closed = false;
-
+        let mut v_buf: Vec<u8> = Vec::new();
         loop {
             // обработка нескольких событий
             tokio::select! {
@@ -315,13 +315,21 @@ impl Session {
                     match msg {
                         // запись в web-socket
                         ChannelMsg::Data { ref data } => {
-                            let res = std::str::from_utf8(data.iter().as_slice());
-                            if let Ok(text) = res {
-                                let msg = get_ws_stdout(text.to_string());
-                                let _ = send_ws_msg(tx,msg);
-                            } else {
-                                let err = res.err().unwrap();
-                                error!("Ошибка получения текста из сообщения ssh-клиента: {err:?} '{:?}'", &data);
+                            let mut v = data.iter().as_slice().to_vec();
+                            v_buf.append(v.as_mut());
+                            let mut n = v_buf.len();
+                            'inner: loop {
+                                let res = std::str::from_utf8(&v_buf[..n]);
+                                if let Ok(text) = res {
+                                    let msg = get_ws_stdout(text.to_string());
+                                    let _ = send_ws_msg(tx,msg);
+                                    v_buf = v_buf[n..].to_vec();
+                                    break 'inner;
+                                } else {
+                                    let err = res.err().unwrap();
+                                    error!("Ошибка получения текста из сообщения ssh-клиента: {err:?} '{:?}'", &v_buf[..n]);
+                                    n -= 1;
+                                }
                             }
                         }
                         // сервер закрыл соединение
